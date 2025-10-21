@@ -27,6 +27,7 @@ public class MvcConfig implements WebMvcConfigurer {
                         "voucher/**"
                 ).order(1);
 
-        registry.addInterceptor(new RefreshInterceptor(stringRedisTemplate)).order(0);
+        registry.addInterceptor(new RefreshInterceptor(stringRedisTemplate))
+                .order(0);
     }
 }
