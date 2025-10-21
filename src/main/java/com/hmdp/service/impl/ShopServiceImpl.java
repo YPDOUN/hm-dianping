@@ -8,8 +8,6 @@ import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +53,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         String shopJSON = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(shopJSON)) {
             //命中则返回shop数据
-            Shop shop = JSONUtil.toBean(shopJSON, Shop.class);
-            return shop;
+            return JSONUtil.toBean(shopJSON, Shop.class);
         }
 
         //如果不为null，证明是空字符串，则返回错误信息，反之为null查询数据库
@@ -99,7 +96,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
             throw new RuntimeException(e);
         } finally {
             // 7.释放互斥锁
-            stringRedisTemplate.delete(lockKey);
+            unlock(lockKey);
         }
         //返回数据
         return shop;
@@ -123,8 +120,7 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         //2、判断缓存是否命中
         if (StrUtil.isNotBlank(shopJSON)) {
             //命中则返回shop数据
-            Shop shop = JSONUtil.toBean(shopJSON, Shop.class);
-            return shop;
+            return JSONUtil.toBean(shopJSON, Shop.class);
         }
 
         //如果不为null，证明是空字符串，则返回错误信息，反之为null查询数据库
