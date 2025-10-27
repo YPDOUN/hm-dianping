@@ -7,11 +7,14 @@ import com.hmdp.entity.ShopType;
 import com.hmdp.mapper.ShopTypeMapper;
 import com.hmdp.service.IShopTypeService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -30,7 +33,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
 
     @Override
     public Result queryTypeList() {
-        //1、查询redis中是否有缓存，有则直接返回
+        /*//1、查询redis中是否有缓存，有则直接返回
         String key = "cache:type:list";
         String shopTypeJSON = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(shopTypeJSON)) {
@@ -40,6 +43,20 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
         //2、没有则查询数据库，并写入redis中返回
         List<ShopType> typeList = query().orderByAsc("sort").list();
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(typeList));
-        return Result.ok(typeList);
+        return Result.ok(typeList);*/
+
+        //1.查询缓存
+        String key = "cache:type:list";
+        List<String> typeList = stringRedisTemplate.opsForList().range(key, 0, -1);
+        if (typeList != null && !typeList.isEmpty()) {
+            List<ShopType> shopTypes = typeList.stream()
+                    .map(json -> JSONUtil.toBean(json, ShopType.class))
+                    .collect(Collectors.toList());
+            return Result.ok(shopTypes);
+        }
+        //2.没有则读取数据库并写入redis中
+        List<ShopType> shopTypes = query().orderByAsc("sort").list();
+        stringRedisTemplate.opsForList().rightPushAll(key, shopTypes.stream().map(JSONUtil::toJsonStr).collect(Collectors.toList()));
+        return Result.ok(shopTypes);
     }
 }
