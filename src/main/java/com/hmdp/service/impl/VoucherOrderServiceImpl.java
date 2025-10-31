@@ -62,11 +62,11 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         // 创建锁对象
         SimpleRedisLock lock = new SimpleRedisLock("order:voucher:" + userId, stringRedisTemplate);
         // 判断是否成功获取锁
-        boolean success = lock.tryLock(100);
-        if (!success) {
+        if (!lock.tryLock(100)) {
             // 不超过，代表当前用户已经有线程在下单
             return Result.fail("下单失败，请勿重复下单！");
         }
+
         try {
             IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
             return proxy.createVoucherOrder(voucherId);
