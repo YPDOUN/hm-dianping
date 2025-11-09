@@ -1,15 +1,11 @@
 package com.hmdp.utils;
 
 import cn.hutool.core.lang.UUID;
-import cn.hutool.core.util.StrUtil;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.script.RedisScript;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SimpleRedisLock implements ILock{
@@ -36,7 +32,7 @@ public class SimpleRedisLock implements ILock{
 
     @Override
     public boolean tryLock(long timeOutSec) {
-        //获取线程标识
+        //创建一个唯一的线程号
         String threadId = THREAD_PREFIX + Thread.currentThread().getId();
         //获取锁
         Boolean success = stringRedisTemplate.opsForValue()
