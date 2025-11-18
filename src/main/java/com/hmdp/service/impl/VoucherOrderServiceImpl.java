@@ -67,7 +67,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     private static final ExecutorService SECKILL_ORDER_EXECUTOR = Executors.newSingleThreadExecutor();
     @PostConstruct
     private void init() {
-        //Bean初始化完成后，异步开启任务，监听阻塞队列
+        //Bean初始化完成后，异步开启任务，监听队列
         SECKILL_ORDER_EXECUTOR.submit(new VoucherOrderHandler());
     }
 
