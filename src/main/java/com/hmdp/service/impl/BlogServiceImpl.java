@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -140,24 +141,24 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         String key = BLOG_LIKED_KEY + id;
         // 查询点赞时间前5的用户id列表
         Set<String> top5UserIdList = stringRedisTemplate.opsForZSet().range(key, 0, 4);
-
-        if (top5UserIdList != null) {
-            // 将字符id转为Long型
-            List<Long> ids = top5UserIdList.stream()
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
-            //根据id查询用户，并转为DTO对象
-            String strIds = StrUtil.join(",", ids);
-            //根据id查询用户 where id in (?, ?) order by field(id, 5, 1)
-            List<UserDTO> userDTOS = userService.query()
-                    .in("id", ids).last("order by field(id," + strIds + ")").list()
-                    .stream()
-                    .map(user -> BeanUtil.copyProperties(user, UserDTO.class))
-                    .collect(Collectors.toList());
-
-            return Result.ok(userDTOS);
+        //如果关注列表为空则返回空的列表
+        if (top5UserIdList == null || top5UserIdList.isEmpty()) {
+            return Result.ok(Collections.emptyList());
         }
+        // 将字符id转为Long型
+        List<Long> ids = top5UserIdList.stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
 
-        return Result.fail("获取排行榜失败！");
+        //根据id查询用户，并转为DTO对象
+        String strIds = StrUtil.join(",", ids);
+        //根据id查询用户 where id in (?, ?) order by field(id, 5, 1)
+        List<UserDTO> userDTOS = userService.query()
+                .in("id", ids).last("order by field(id," + strIds + ")").list()
+                .stream()
+                .map(user -> BeanUtil.copyProperties(user, UserDTO.class))
+                .collect(Collectors.toList());
+
+        return Result.ok(userDTOS);
     }
 }

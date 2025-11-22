@@ -112,4 +112,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         save(user);
         return user;
     }
+
+    /**
+     * 根据用户id查询用户信息，返回DTO对象
+     */
+    @Override
+    public Result queryUserData(Long id) {
+        User user = getById(id);
+        if (user == null) {
+            return Result.ok();
+        }
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        return Result.ok(userDTO);
+    }
 }

@@ -20,4 +20,9 @@ public interface IUserService extends IService<User> {
     Result code(String phone, HttpSession session);
 
     Result login(LoginFormDTO loginForm, HttpSession session);
+
+    /**
+     * 根据用户id查询用户信息，返回DTO对象
+     */
+    Result queryUserData(Long id);
 }
