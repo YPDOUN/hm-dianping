@@ -14,23 +14,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IBlogService extends IService<Blog> {
 
-    /**
-     * 通过笔记id查询笔记信息
-     */
     Result queryBlogById(Long id);
 
-    /**
-     * 返回用户笔记的分页信息
-     */
     Result queryHotBlog(Integer current);
 
-    /**
-     * 实现点赞逻辑
-     */
     Result likeBlog(Long id);
 
-    /**
-     * 获取点赞排行榜
-     */
     Result likesRank(Long id);
+
+    Result saveBolg(Blog blog);
+
+    Result queryBlogOfFollow(Long max, Integer offset);
 }
